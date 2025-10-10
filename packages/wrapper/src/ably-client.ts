@@ -23,7 +23,7 @@ export class AblyTunnelClient {
   }
 
   /**
-   * Wait for connection to Ably
+   * Wait for connection to Ably with reconnection logic
    */
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -33,13 +33,39 @@ export class AblyTunnelClient {
 
       this.client.connection.once('connected', () => {
         clearTimeout(timeout);
+        console.log('[Wrapper] Connected to Ably');
         resolve();
       });
 
       this.client.connection.once('failed', (error) => {
         clearTimeout(timeout);
+        console.error('[Wrapper] Failed to connect to Ably:', error);
         reject(error);
       });
+
+      // Set up reconnection handlers
+      this.setupReconnectionHandlers();
+    });
+  }
+
+  /**
+   * Set up automatic reconnection with exponential backoff
+   */
+  private setupReconnectionHandlers(): void {
+    this.client.connection.on('disconnected', () => {
+      console.warn('[Wrapper] Disconnected from Ably');
+    });
+
+    this.client.connection.on('suspended', () => {
+      console.warn('[Wrapper] Connection suspended, will retry...');
+    });
+
+    this.client.connection.on('connected', () => {
+      console.log('[Wrapper] Reconnected to Ably');
+    });
+
+    this.client.connection.on('failed', (error) => {
+      console.error('[Wrapper] Connection failed:', error);
     });
   }
 

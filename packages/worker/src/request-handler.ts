@@ -1,13 +1,16 @@
 import { TunnelRequest, TunnelResponse, WorkerConfig } from './types';
+import { Logger } from './logger';
 
 /**
  * Handles executing HTTP requests and creating responses
  */
 export class RequestHandler {
   private config: WorkerConfig;
+  private logger: Logger;
 
-  constructor(config: WorkerConfig) {
+  constructor(config: WorkerConfig, logger: Logger) {
     this.config = config;
+    this.logger = logger;
   }
 
   /**
@@ -36,15 +39,60 @@ export class RequestHandler {
   }
 
   /**
+   * Validate request size
+   */
+  private isRequestSizeValid(request: TunnelRequest): boolean {
+    const maxSize = this.config.maxRequestSize || 10485760; // 10MB default
+
+    if (request.body) {
+      const bodySize = Buffer.from(request.body, 'base64').length;
+      if (bodySize > maxSize) {
+        this.logger.warn('Request size exceeds limit', {
+          requestId: request.requestId,
+          tenantId: request.tenantId,
+          bodySize,
+          maxSize,
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * Execute an HTTP request
    */
   async handleRequest(request: TunnelRequest): Promise<TunnelResponse> {
     const startTime = Date.now();
 
     try {
+      // Validate request size
+      if (!this.isRequestSizeValid(request)) {
+        this.logger.warn('Request rejected: size limit exceeded', {
+          requestId: request.requestId,
+          tenantId: request.tenantId,
+          url: request.url,
+        });
+
+        return {
+          requestId: request.requestId,
+          tenantId: request.tenantId,
+          status: 413,
+          headers: {},
+          error: 'Request size exceeds maximum allowed',
+          timestamp: Date.now(),
+        };
+      }
+
       // Validate URL
       if (!this.isUrlAllowed(request.url)) {
-        console.warn(`[Worker] Blocked request to disallowed host: ${request.url}`);
+        this.logger.warn('Request rejected: host not allowed', {
+          requestId: request.requestId,
+          tenantId: request.tenantId,
+          url: request.url,
+        });
+
         return {
           requestId: request.requestId,
           tenantId: request.tenantId,
@@ -56,7 +104,12 @@ export class RequestHandler {
       }
 
       // Execute request
-      console.log(`[Worker] Executing ${request.method} ${request.url}`);
+      this.logger.info('Executing request', {
+        requestId: request.requestId,
+        tenantId: request.tenantId,
+        method: request.method,
+        url: request.url,
+      });
 
       const body = request.body ? Buffer.from(request.body, 'base64') : undefined;
 
@@ -77,9 +130,12 @@ export class RequestHandler {
       });
 
       const duration = Date.now() - startTime;
-      console.log(
-        `[Worker] Completed request ${request.requestId} in ${duration}ms (status: ${response.status})`
-      );
+      this.logger.info('Request completed', {
+        requestId: request.requestId,
+        tenantId: request.tenantId,
+        status: response.status,
+        duration,
+      });
 
       return {
         requestId: request.requestId,
@@ -91,10 +147,12 @@ export class RequestHandler {
       };
     } catch (error) {
       const duration = Date.now() - startTime;
-      console.error(
-        `[Worker] Error executing request ${request.requestId} after ${duration}ms:`,
-        error
-      );
+      this.logger.error('Request failed', {
+        requestId: request.requestId,
+        tenantId: request.tenantId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        duration,
+      });
 
       return {
         requestId: request.requestId,

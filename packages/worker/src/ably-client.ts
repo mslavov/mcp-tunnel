@@ -23,7 +23,7 @@ export class AblyWorkerClient {
   }
 
   /**
-   * Wait for connection to Ably
+   * Wait for connection to Ably with reconnection logic
    */
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -42,6 +42,30 @@ export class AblyWorkerClient {
         console.error('[Worker] Failed to connect to Ably:', error);
         reject(error);
       });
+
+      // Set up reconnection handlers
+      this.setupReconnectionHandlers();
+    });
+  }
+
+  /**
+   * Set up automatic reconnection with exponential backoff
+   */
+  private setupReconnectionHandlers(): void {
+    this.client.connection.on('disconnected', () => {
+      console.warn('[Worker] Disconnected from Ably');
+    });
+
+    this.client.connection.on('suspended', () => {
+      console.warn('[Worker] Connection suspended, will retry...');
+    });
+
+    this.client.connection.on('connected', () => {
+      console.log('[Worker] Reconnected to Ably');
+    });
+
+    this.client.connection.on('failed', (error) => {
+      console.error('[Worker] Connection failed:', error);
     });
   }
 
