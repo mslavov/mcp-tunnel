@@ -16,17 +16,17 @@ MCP Tunnel enables [Model Context Protocol (MCP)](https://modelcontextprotocol.i
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    AI Assistant / Client                     │
+│                    AI Assistant / Client                    │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │         MCP Server (stdio, JSON-RPC 2.0)               │ │
-│  │                                                          │ │
-│  │  ┌──────────────────────────────────────────────────┐ │ │
-│  │  │   Wrapper (@mcp-tunnel/wrapper)                  │ │ │
-│  │  │   - Wraps MCP server execution                   │ │ │
-│  │  │   - Intercepts HTTP/HTTPS requests               │ │ │
-│  │  │   - Publishes requests to Ably                   │ │ │
-│  │  │   - Receives responses from Ably                 │ │ │
-│  │  └──────────────────────────────────────────────────┘ │ │
+│  │                                                        │ │
+│  │  ┌──────────────────────────────────────────────────┐  │ │
+│  │  │   Wrapper (@mcp-tunnel/wrapper)                  │  │ │
+│  │  │   - Wraps MCP server execution                   │  │ │
+│  │  │   - Intercepts HTTP/HTTPS requests               │  │ │
+│  │  │   - Publishes requests to Ably                   │  │ │
+│  │  │   - Receives responses from Ably                 │  │ │
+│  │  └──────────────────────────────────────────────────┘  │ │
 │  └────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
                            │
@@ -34,15 +34,15 @@ MCP Tunnel enables [Model Context Protocol (MCP)](https://modelcontextprotocol.i
                            │ (Internet)
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              Private Network / Behind Firewall               │
+│              Private Network / Behind Firewall              │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │   Worker (Docker Container)                            │ │
 │  │   - Subscribes to Ably request channel                 │ │
 │  │   - Executes HTTP requests to internal services        │ │
 │  │   - Publishes responses to Ably                        │ │
 │  └────────────────────────────────────────────────────────┘ │
-│                           │                                  │
-│                           ▼                                  │
+│                           │                                 │
+│                           ▼                                 │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │          Internal APIs / Services                      │ │
 │  │          (not publicly accessible)                     │ │
@@ -184,8 +184,6 @@ The worker enforces:
 - **Request size limits** - Prevents abuse
 - **Rate limiting** - Per-tenant request limits
 
-See [SECURITY.md](./SECURITY.md) for detailed security best practices.
-
 ## Debugging
 
 Enable detailed logging for troubleshooting:
@@ -271,7 +269,7 @@ mcp-tunnel/
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+Contributions are welcome!
 
 ## License
 
