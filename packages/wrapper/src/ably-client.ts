@@ -1,5 +1,6 @@
 import Ably from 'ably';
 import { TunnelRequest, TunnelResponse, TunnelConfig } from './types';
+import { logger } from './logger';
 
 /**
  * Ably client for the wrapper
@@ -33,13 +34,13 @@ export class AblyTunnelClient {
 
       this.client.connection.once('connected', () => {
         clearTimeout(timeout);
-        console.log('[Wrapper] Connected to Ably');
+        logger.log('[Wrapper]', 'Connected to Ably');
         resolve();
       });
 
       this.client.connection.once('failed', (error) => {
         clearTimeout(timeout);
-        console.error('[Wrapper] Failed to connect to Ably:', error);
+        logger.error('[Wrapper]', 'Failed to connect to Ably:', error);
         reject(error);
       });
 
@@ -53,19 +54,19 @@ export class AblyTunnelClient {
    */
   private setupReconnectionHandlers(): void {
     this.client.connection.on('disconnected', () => {
-      console.warn('[Wrapper] Disconnected from Ably');
+      logger.warn('[Wrapper]', 'Disconnected from Ably');
     });
 
     this.client.connection.on('suspended', () => {
-      console.warn('[Wrapper] Connection suspended, will retry...');
+      logger.warn('[Wrapper]', 'Connection suspended, will retry...');
     });
 
     this.client.connection.on('connected', () => {
-      console.log('[Wrapper] Reconnected to Ably');
+      logger.log('[Wrapper]', 'Reconnected to Ably');
     });
 
     this.client.connection.on('failed', (error) => {
-      console.error('[Wrapper] Connection failed:', error);
+      logger.error('[Wrapper]', 'Connection failed:', error);
     });
   }
 

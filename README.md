@@ -60,6 +60,8 @@ MCP Tunnel enables [Model Context Protocol (MCP)](https://modelcontextprotocol.i
 - ✅ **Low latency** - Real-time pub/sub communication
 - ✅ **TypeScript** - Full type safety with strict mode
 - ✅ **Production-ready** - Rate limiting, request size limits, health checks
+- ✅ **Debug logging** - Optional file-based logging for troubleshooting
+- ✅ **Smart bypassing** - Automatically bypasses Ably domains to prevent loops
 
 ## Quick Start
 
@@ -107,9 +109,15 @@ docker run -d \
 export ABLY_API_KEY=your-ably-api-key
 export TENANT_ID=your-tenant-id
 
-# Run with tunnel
+# Test the tunnel
 mcp-tunnel --test https://api.internal.company.com/health
+
+# Or run with an MCP server
+mcp-tunnel --server ./my-mcp-server.js
 ```
+
+**Claude Desktop Example:**
+See [`examples/slack-mcp-tunneled.json`](./examples/slack-mcp-tunneled.json) for a real-world configuration example using the Slack MCP server.
 
 ## HTTP Client Compatibility
 
@@ -140,6 +148,8 @@ The wrapper intercepts requests at the `http`/`https` module level, so it works 
 Environment variables:
 - `ABLY_API_KEY` (required) - Ably API key with publish/subscribe capabilities
 - `TENANT_ID` (required) - Unique tenant identifier
+- `TUNNEL_TIMEOUT` (optional) - Request timeout in milliseconds (default: 30000)
+- `MCP_TUNNEL_DEBUG` (optional) - Enable debug logging to `.mcp-tunnel/wrapper.log`
 
 ### Worker Configuration
 
@@ -175,6 +185,32 @@ The worker enforces:
 - **Rate limiting** - Per-tenant request limits
 
 See [SECURITY.md](./SECURITY.md) for detailed security best practices.
+
+## Debugging
+
+Enable detailed logging for troubleshooting:
+
+```bash
+# Enable debug logging
+export MCP_TUNNEL_DEBUG=1
+export ABLY_API_KEY=your-key
+export TENANT_ID=your-tenant-id
+
+# Run your MCP server with tunnel
+mcp-tunnel --server ./my-mcp-server.js
+
+# View logs in real-time
+tail -f .mcp-tunnel/wrapper.log
+```
+
+Debug logs include:
+- Preload script initialization
+- HTTP request/response interception
+- Ably connection status
+- Request/response details
+- Error stack traces
+
+**Note:** Debug logging writes to a file to avoid polluting stdio (which would break MCP protocol communication).
 
 ## Development
 

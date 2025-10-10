@@ -378,15 +378,28 @@ docker-compose logs -f | grep '"requestId":"abc-123"'
 
 ### Wrapper Logs
 
-Wrapper logs to stdout/stderr:
+By default, the wrapper does not log to stdout/stderr to avoid breaking MCP protocol communication. Enable debug logging with:
 
 ```bash
-# All logs
-mcp-tunnel --server ./my-server.js 2>&1 | tee wrapper.log
+# Enable debug logging
+export MCP_TUNNEL_DEBUG=1
+mcp-tunnel --server ./my-server.js
 
-# Errors only
-mcp-tunnel --server ./my-server.js 2>&1 >/dev/null
+# View logs in real-time
+tail -f .mcp-tunnel/wrapper.log
+
+# Or in another terminal
+watch -n 1 tail -20 .mcp-tunnel/wrapper.log
 ```
+
+Debug logs include:
+- Preload script initialization details
+- All intercepted HTTP requests with full URLs and headers
+- Response status codes and timing
+- Ably connection events (connected, disconnected, reconnecting)
+- Detailed error messages with stack traces
+
+**Log file location:** `.mcp-tunnel/wrapper.log` in the current working directory
 
 ## Advanced Usage
 
@@ -410,15 +423,48 @@ mcp-tunnel --server ./my-slow-mcp-server.js --timeout 60000
 
 ### Debugging
 
-Enable verbose logging:
+Enable debug logging to troubleshoot issues:
 
+**Wrapper:**
 ```bash
-# Wrapper (via MCP server env)
-NODE_ENV=development mcp-tunnel --server ./my-mcp-server.js
+# Enable debug logging
+export MCP_TUNNEL_DEBUG=1
+export ABLY_API_KEY=your-key
+export TENANT_ID=your-tenant-id
 
-# Worker
+# Run with tunnel
+mcp-tunnel --server ./my-mcp-server.js
+
+# In another terminal, watch logs
+tail -f .mcp-tunnel/wrapper.log
+```
+
+**What gets logged:**
+```
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] ================================================================================
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] Preload script loaded at 2025-10-10T12:00:00.000Z
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] Node version: v18.17.0
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] >>> Intercepted GET https://api.internal.company.com/data
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] >>> Headers: {"content-type":"application/json"}
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] >>> Sending request through tunnel...
+[2025-10-10T12:00:00.000Z] [INFO] [Tunnel Preload] <<< Response received: 200 OK
+```
+
+**Worker:**
+```bash
+# Worker uses JSON logging by default
 LOG_LEVEL=debug docker-compose up
 ```
+
+**Bypassed Domains:**
+
+The tunnel automatically bypasses these domains to prevent intercepting its own Ably connections:
+- `realtime.ably.net`
+- `ably-realtime.com`
+- `ably.io`
+- `ably.com`
+
+**Performance Note:** Debug logging may impact performance. Disable it in production unless actively troubleshooting.
 
 ---
 

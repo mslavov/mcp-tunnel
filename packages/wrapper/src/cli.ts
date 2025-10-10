@@ -4,6 +4,7 @@ import { resolve } from 'path';
 import { spawn } from 'child_process';
 import { TunnelFetch } from './tunnel-fetch';
 import { TunnelConfig } from './types';
+import { logger } from './logger';
 
 /**
  * Parse CLI arguments
@@ -100,22 +101,28 @@ MCP Client Config Example (claude_desktop_config.json):
 function spawnMcpServer(serverPath: string, serverArgs: string[], env: NodeJS.ProcessEnv) {
   const preloadScript = resolve(__dirname, 'preload.js');
 
-  console.log('[Wrapper] Spawning MCP server:', serverPath);
-  console.log('[Wrapper] Using preload script:', preloadScript);
+  logger.log('[Wrapper]', 'Spawning MCP server:', serverPath);
+  logger.log('[Wrapper]', 'Using preload script:', preloadScript);
 
-  const child = spawn('node', ['--require', preloadScript, serverPath, ...serverArgs], {
+  // Inject preload script via NODE_OPTIONS so it works with any node process
+  const serverEnv = {
+    ...env,
+    NODE_OPTIONS: `--require ${preloadScript} ${env.NODE_OPTIONS || ''}`.trim(),
+  };
+
+  const child = spawn(serverPath, serverArgs, {
     stdio: 'inherit',
-    env,
+    env: serverEnv,
   });
 
   child.on('error', (error) => {
-    console.error('[Wrapper] Failed to spawn MCP server:', error);
+    logger.error('[Wrapper]', 'Failed to spawn MCP server:', error);
     process.exit(1);
   });
 
   child.on('exit', (code) => {
     if (code !== 0 && code !== null) {
-      console.error(`[Wrapper] MCP server exited with code ${code}`);
+      logger.error('[Wrapper]', `MCP server exited with code ${code}`);
       process.exit(code);
     }
     process.exit(0);
@@ -141,37 +148,37 @@ async function main() {
 
   // Validate required config
   if (!config.ablyApiKey) {
-    console.error('Error: ABLY_API_KEY is required (env var or --ably-key)');
+    logger.error('[Wrapper]', 'ABLY_API_KEY is required (env var or --ably-key)');
     process.exit(1);
   }
 
   if (!config.tenantId) {
-    console.error('Error: TENANT_ID is required (env var or --tenant-id)');
+    logger.error('[Wrapper]', 'TENANT_ID is required (env var or --tenant-id)');
     process.exit(1);
   }
 
-  console.log('[Wrapper] Starting MCP Tunnel Wrapper');
-  console.log(`[Wrapper] Tenant ID: ${config.tenantId}`);
+  logger.log('[Wrapper]', 'Starting MCP Tunnel Wrapper');
+  logger.log('[Wrapper]', `Tenant ID: ${config.tenantId}`);
 
   // Test mode - make a single request and exit
   if (args.test) {
     const tunnel = new TunnelFetch(config);
     try {
       await tunnel.init();
-      console.log('[Wrapper] Connected to Ably');
-      console.log(`[Wrapper] Testing with URL: ${args.test}`);
+      logger.log('[Wrapper]', 'Connected to Ably');
+      logger.log('[Wrapper]', `Testing with URL: ${args.test}`);
 
       const response = await tunnel.fetch(args.test);
-      console.log(`[Wrapper] Response status: ${response.status}`);
+      logger.log('[Wrapper]', `Response status: ${response.status}`);
       const text = await response.text();
-      console.log(`[Wrapper] Response body (truncated):`);
-      console.log(text.substring(0, 500));
+      logger.log('[Wrapper]', `Response body (truncated):`);
+      logger.log('[Wrapper]', text.substring(0, 500));
 
       await tunnel.close();
-      console.log('[Wrapper] ✅ Test successful');
+      logger.log('[Wrapper]', 'Test successful');
       process.exit(0);
     } catch (error) {
-      console.error('[Wrapper] ❌ Test failed:', error);
+      logger.error('[Wrapper]', 'Test failed:', error);
       await tunnel.close();
       process.exit(1);
     }
@@ -188,7 +195,7 @@ async function main() {
 
     spawnMcpServer(args.server, args.serverArgs || [], env);
   } else {
-    console.error('Error: No MCP server specified. Use --server <path>');
+    logger.error('[Wrapper]', 'No MCP server specified. Use --server <path>');
     printHelp();
     process.exit(1);
   }

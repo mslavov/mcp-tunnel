@@ -86,6 +86,87 @@ Expected output:
 [Test Fetch] ✅ All fetch tests passed!
 ```
 
+## Real-World Example: Slack MCP Server (Tunneled)
+
+The `slack-mcp-tunneled.json` file shows how to configure Claude Desktop to use the Slack MCP server through the tunnel. This is useful when your Slack workspace is behind a firewall or requires VPN access.
+
+### Setup
+
+1. **Deploy Worker** (on your private network where Slack is accessible):
+
+   ```bash
+   # Create .env file
+   cat > .env <<EOF
+   ABLY_API_KEY=your-ably-api-key
+   TENANT_ID=your-tenant-id
+   ALLOWED_HOSTS=*.slack.com,slack.com
+   EOF
+
+   # Run worker
+   docker run -d \
+     --name mcp-tunnel-worker \
+     --env-file .env \
+     ghcr.io/mslavov/mcp-tunnel-worker:latest
+   ```
+
+2. **Configure Claude Desktop:**
+
+   Add to your `claude_desktop_config.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "slack-tunneled": {
+         "command": "npx",
+         "args": [
+           "@mcp-tunnel/wrapper",
+           "--server",
+           "npx",
+           "--server-args",
+           "-y simple-slack-mcp-server"
+         ],
+         "env": {
+           "ABLY_API_KEY": "${ABLY_API_KEY}",
+           "TENANT_ID": "your-tenant-id",
+           "SLACK_BOT_TOKEN": "${SLACK_ACCESS_TOKEN}"
+         }
+       }
+     }
+   }
+   ```
+
+3. **Set Environment Variables:**
+
+   ```bash
+   export ABLY_API_KEY="your-ably-api-key"
+   export SLACK_ACCESS_TOKEN="xoxb-your-slack-bot-token"
+   ```
+
+4. **Restart Claude Desktop** - The Slack MCP server will now tunnel all requests through your private network.
+
+### Debugging
+
+Enable debug logging:
+
+```json
+{
+  "mcpServers": {
+    "slack-tunneled": {
+      "command": "npx",
+      "args": ["@mcp-tunnel/wrapper", "--server", "npx", "--server-args", "-y simple-slack-mcp-server"],
+      "env": {
+        "ABLY_API_KEY": "${ABLY_API_KEY}",
+        "TENANT_ID": "your-tenant-id",
+        "SLACK_BOT_TOKEN": "${SLACK_ACCESS_TOKEN}",
+        "MCP_TUNNEL_DEBUG": "1"
+      }
+    }
+  }
+}
+```
+
+View logs: `tail -f .mcp-tunnel/wrapper.log`
+
 ## Troubleshooting
 
 ### Worker not receiving requests
@@ -104,3 +185,13 @@ Expected output:
 1. Verify Ably API key is valid
 2. Check internet connectivity
 3. Ensure Ably service is operational: https://status.ably.com/
+
+### Slack MCP specific issues
+
+**401 Unauthorized:**
+- Verify `SLACK_BOT_TOKEN` is correct and not expired
+- Check token has required scopes in Slack App settings
+
+**Host not allowed:**
+- Worker must have `ALLOWED_HOSTS=*.slack.com,slack.com`
+- Check worker logs for "host not allowed" errors

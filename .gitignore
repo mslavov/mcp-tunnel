@@ -32,6 +32,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# MCP Tunnel logs
+.mcp-tunnel/
+
 # Testing
 coverage/
 .nyc_output/

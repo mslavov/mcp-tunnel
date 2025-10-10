@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- 🔍 **Debug logging system** - Optional file-based logging via `MCP_TUNNEL_DEBUG` environment variable
+  - Logs to `.mcp-tunnel/wrapper.log` to avoid polluting stdio
+  - Detailed initialization, request/response, and error logging
+  - Does not impact MCP protocol communication
+- 🚫 **Smart domain bypassing** - Automatically bypasses Ably domains to prevent intercepting tunnel's own connections
+  - Bypassed domains: `realtime.ably.net`, `ably-realtime.com`, `ably.io`, `ably.com`
+- 📖 **Slack MCP example** - Added `examples/slack-mcp-tunneled.json` showing real-world integration
+
+### Changed
+- ⚡ **Improved CLI spawn method** - Now uses `NODE_OPTIONS` instead of `--require` flag for better compatibility with different MCP server types
+- 📝 **Enhanced preload logging** - Added comprehensive logging throughout the preload lifecycle when debug mode is enabled
+- 🔇 **Silent by default** - Wrapper no longer logs to console unless debug mode is enabled
+
+### Fixed
+- 🔄 **Ably connection interception** - Prevented tunnel from intercepting its own Ably connections, which could cause loops
+
 ## [0.2.0] - 2025-10-10
 
 ### Added - Phase 3: MCP Integration & Robustness

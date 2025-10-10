@@ -1,0 +1,19 @@
+  {
+    "mcpServers": {
+      "slack-tunneled": {
+        "command": "npx",
+        "args": [
+          "@mcp-tunnel/wrapper",
+          "--server",
+          "npx",
+          "--server-args",
+          "-y simple-slack-mcp-server"
+        ],
+        "env": {
+          "ABLY_API_KEY": "${ABLY_API_KEY}",
+          "TENANT_ID": "your-tenant-id",
+          "SLACK_BOT_TOKEN": "${SLACK_ACCESS_TOKEN}"
+        }
+      }
+    }
+  }
