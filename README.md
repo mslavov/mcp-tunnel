@@ -269,26 +269,6 @@ mcp-tunnel/
 └── README.md
 ```
 
-## Roadmap
-
-- [ ] Phase 1: Foundation ✅ (Complete)
-  - [x] Monorepo setup
-  - [x] Ably integration
-  - [x] TypeScript configuration
-- [ ] Phase 2: Core Implementation (In Progress)
-  - [x] HTTP request interception
-  - [x] Request/response tunneling
-  - [ ] E2E testing
-- [ ] Phase 3: MCP Integration
-  - [ ] MCP server process spawner
-  - [ ] Stdio transport forwarding
-  - [ ] Concurrent request support
-- [ ] Phase 4: Packaging & Deployment
-  - [ ] npm package publishing
-  - [ ] Docker image publishing
-  - [ ] CI/CD pipeline
-  - [ ] Documentation
-
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
