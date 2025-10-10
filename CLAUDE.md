@@ -157,18 +157,45 @@ docker-compose logs -f | grep '"level":"error"'
 - Builds and pushes Docker image to `ghcr.io/mslavov/mcp-tunnel-worker`
 
 ### Creating a Release
-```bash
-# Update versions in package.json files
-# Update CHANGELOG.md
 
-# Commit and tag
+**IMPORTANT: npm Version Immutability**
+- Once a version is published to npm, it **CANNOT** be republished or overwritten
+- Always check the latest published version before releasing: `npm view @mcp-tunnel/wrapper version`
+- If a release fails after npm publish succeeds, you MUST increment the version for the next attempt
+- Docker images CAN be overwritten with the same tag, but npm packages cannot
+
+```bash
+# 1. Check current published version on npm
+npm view @mcp-tunnel/wrapper version
+
+# 2. Update versions in package.json files (increment from published version)
+# - packages/wrapper/package.json
+# - packages/worker/package.json
+# - package.json (root)
+
+# 3. Update CHANGELOG.md with new version
+
+# 4. Test Docker build locally BEFORE releasing
+docker build -t mcp-tunnel-worker:test packages/worker/
+
+# 5. Commit and tag
 git add -A
 git commit -m "chore: release vX.Y.Z"
 git tag vX.Y.Z
 git push origin main --tags
 
-# Create GitHub release (triggers publish workflow)
+# 6. Create GitHub release (triggers publish workflow)
 gh release create vX.Y.Z --generate-notes
+
+# 7. Monitor GitHub Actions for success/failure
+gh run watch
+
+# 8. If publish fails AFTER npm published:
+# - Delete the GitHub release: gh release delete vX.Y.Z --yes
+# - Delete the tag: git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z
+# - Increment version (e.g., 0.2.0 → 0.2.1)
+# - Commit version bump
+# - Repeat from step 4
 ```
 
 ## Common Tasks
