@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mcp-tunnel-worker:
+    build:
+      context: ./packages/worker
+      dockerfile: Dockerfile
+    container_name: mcp-tunnel-worker
+    environment:
+      # Ably API key with scoped capabilities
+      ABLY_API_KEY: ${ABLY_API_KEY}
+      # Tenant ID (must match wrapper's tenant ID)
+      TENANT_ID: ${TENANT_ID:-tenant-123}
+      # Comma-separated allowed hosts
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-api.internal.company.com,*.internal.company.com}
+      # Max request size (10MB default)
+      MAX_REQUEST_SIZE: ${MAX_REQUEST_SIZE:-10485760}
+      # Rate limit per tenant (requests per minute)
+      RATE_LIMIT_PER_TENANT: ${RATE_LIMIT_PER_TENANT:-100}
+    restart: unless-stopped
+    networks:
+      - mcp-tunnel
+    # Health check (optional, requires health endpoint implementation)
+    # healthcheck:
+    #   test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+    #   interval: 30s
+    #   timeout: 3s
+    #   retries: 3
+
+networks:
+  mcp-tunnel:
+    driver: bridge

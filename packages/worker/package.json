@@ -1,0 +1,27 @@
+{
+  "name": "@mcp-tunnel/worker",
+  "version": "0.1.0",
+  "description": "MCP tunnel worker - executes HTTP requests from Ably tunnel",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "test": "echo \"Tests coming soon\"",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [
+    "mcp",
+    "tunnel",
+    "ably",
+    "worker"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ably": "^2.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {}
+}
