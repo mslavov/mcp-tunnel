@@ -30,7 +30,7 @@ class Logger {
     }
   }
 
-  private formatMessage(level: string, prefix: string, ...args: any[]): string {
+  private formatMessage(level: string, prefix: string, ...args: unknown[]): string {
     const timestamp = new Date().toISOString();
     const message = args.map(arg =>
       typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
@@ -38,7 +38,7 @@ class Logger {
     return `[${timestamp}] [${level}] ${prefix} ${message}\n`;
   }
 
-  log(prefix: string, ...args: any[]): void {
+  log(prefix: string, ...args: unknown[]): void {
     if (!this.enabled) return;
     try {
       const message = this.formatMessage('INFO', prefix, ...args);
@@ -48,7 +48,7 @@ class Logger {
     }
   }
 
-  error(prefix: string, ...args: any[]): void {
+  error(prefix: string, ...args: unknown[]): void {
     if (!this.enabled) return;
     try {
       const message = this.formatMessage('ERROR', prefix, ...args);
@@ -58,7 +58,7 @@ class Logger {
     }
   }
 
-  warn(prefix: string, ...args: any[]): void {
+  warn(prefix: string, ...args: unknown[]): void {
     if (!this.enabled) return;
     try {
       const message = this.formatMessage('WARN', prefix, ...args);
