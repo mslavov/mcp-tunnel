@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-10-10
+
+### Added
+- 📦 **Wrapper README** - Comprehensive README.md for npm package with installation and usage instructions
+
+### Fixed
+- 🐳 **Docker build** - Fixed worker Dockerfile to properly install TypeScript and build
+  - Changed from `npm ci` to `npm install` (no package-lock in workspace packages)
+  - Added TypeScript and @types/node to worker devDependencies
+  - Made tsconfig.json standalone (removed dependency on root tsconfig)
+  - Added `downlevelIteration` to fix iterator compilation issues
+
+### Changed
+- 📝 **Release process** - Updated CLAUDE.md with npm version immutability warnings and best practices
+
 ## [0.2.0] - 2025-10-10
 
 ### Added
