@@ -115,6 +115,7 @@ export class TunnelFetch {
 
     return new Response(responseBody, {
       status: tunnelResponse.status,
+      statusText: tunnelResponse.statusText || '',
       headers: responseHeaders,
     });
   };

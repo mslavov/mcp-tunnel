@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2025-11-25
+
+### Added
+- ⚙️ **Configurable health check port** - Worker now supports `HEALTH_CHECK_PORT` environment variable (default: 8080)
+- 📝 **HTTP statusText support** - Added `statusText` field to tunnel responses for proper HTTP status text propagation (e.g., "Not Found", "Bad Request")
+
 ## [0.2.2] - 2025-11-25
 
 ### Fixed

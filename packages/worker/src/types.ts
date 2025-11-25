@@ -32,6 +32,8 @@ export interface TunnelResponse {
   tenantId: string;
   /** HTTP status code */
   status: number;
+  /** HTTP status text (e.g., "Bad Request", "Not Found") */
+  statusText?: string;
   /** HTTP headers */
   headers: Record<string, string>;
   /** Response body (Base64-encoded for binary data) */

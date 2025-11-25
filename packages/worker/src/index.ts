@@ -49,7 +49,8 @@ async function main() {
   const ablyClient = new AblyWorkerClient(config);
   const requestHandler = new RequestHandler(config, logger);
   const rateLimiter = new RateLimiter(config.rateLimit || 100, 60000);
-  const healthCheck = new HealthCheckServer(8080);
+  const healthCheckPort = parseInt(process.env.HEALTH_CHECK_PORT || '8080', 10);
+  const healthCheck = new HealthCheckServer(healthCheckPort);
 
   try {
     // Start health check server
@@ -79,6 +80,7 @@ async function main() {
           requestId: request.requestId,
           tenantId: request.tenantId,
           status: 429,
+          statusText: 'Too Many Requests',
           headers: {},
           error: 'Rate limit exceeded',
           timestamp: Date.now(),
