@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2025-11-25
+
+### Fixed
+- 🔧 **Wrapper interceptor response handling** - Fixed `@mswjs/interceptors` to use `controller.respondWith()` instead of return value, which was causing intercepted requests to fail
+- 🗜️ **Content-encoding header handling** - Removed `content-encoding` header in worker responses since `fetch()` automatically decompresses bodies, preventing double-decompression errors
+- 🔄 **Backwards compatibility** - Added `content-encoding` header removal in wrapper for compatibility with older workers
+
 ## [0.2.1] - 2025-10-10
 
 ### Added

@@ -124,9 +124,12 @@ export class RequestHandler {
       const responseBody = Buffer.from(responseBuffer).toString('base64');
 
       // Convert headers
+      // Note: Remove content-encoding because fetch automatically decompresses the body
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
-        responseHeaders[key] = value;
+        if (key.toLowerCase() !== 'content-encoding') {
+          responseHeaders[key] = value;
+        }
       });
 
       const duration = Date.now() - startTime;

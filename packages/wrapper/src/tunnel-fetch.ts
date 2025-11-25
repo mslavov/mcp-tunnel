@@ -108,9 +108,14 @@ export class TunnelFetch {
       ? Buffer.from(tunnelResponse.body, 'base64').toString()
       : undefined;
 
+    // Remove content-encoding header for backwards compatibility with older workers
+    // The body is already decompressed, so this header would cause double-decompression errors
+    const responseHeaders = { ...tunnelResponse.headers };
+    delete responseHeaders['content-encoding'];
+
     return new Response(responseBody, {
       status: tunnelResponse.status,
-      headers: tunnelResponse.headers,
+      headers: responseHeaders,
     });
   };
 

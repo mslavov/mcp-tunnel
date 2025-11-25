@@ -91,7 +91,7 @@ async function initializeTunnel() {
 
     // Intercept all requests
     logger.log('[Tunnel Preload]', 'Setting up request interceptor handler...');
-    interceptor.on('request', async ({ request }) => {
+    interceptor.on('request', async ({ request, controller }) => {
       try {
         const url = new URL(request.url);
 
@@ -100,7 +100,7 @@ async function initializeTunnel() {
 
         if (shouldSkip) {
           logger.log('[Tunnel Preload]', `>>> Skipping ${request.method} ${request.url} (bypassed domain)`);
-          // Return undefined to let the request pass through
+          // Don't call controller.respondWith() to let the request pass through
           return;
         }
 
@@ -117,8 +117,8 @@ async function initializeTunnel() {
 
         logger.log('[Tunnel Preload]', `<<< Response received: ${response.status} ${response.statusText}`);
 
-        // Return the response
-        return response;
+        // Use controller.respondWith() to actually return the response to the caller
+        controller.respondWith(response);
       } catch (error) {
         logger.error('[Tunnel Preload]', '!!! Request failed:', error);
         logger.error('[Tunnel Preload]', '!!! Error stack:', error instanceof Error ? error.stack : 'No stack trace');

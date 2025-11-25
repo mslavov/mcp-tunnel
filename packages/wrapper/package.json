@@ -1,6 +1,6 @@
 {
   "name": "@mcp-tunnel/wrapper",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "MCP tunnel wrapper - intercepts HTTP requests and tunnels them via Ably",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

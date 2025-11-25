@@ -1,6 +1,6 @@
 {
   "name": "mcp-tunnel",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "MCP tunnel for accessing services behind firewalls via Ably Pub/Sub",
   "private": true,
   "workspaces": [
