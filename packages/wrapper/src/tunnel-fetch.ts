@@ -51,7 +51,7 @@ export class TunnelFetch {
     let body: string | undefined;
     if (init?.body) {
       if (typeof init.body === 'string') {
-        body = init.body;
+        body = Buffer.from(init.body).toString('base64');
       } else if (init.body instanceof ArrayBuffer) {
         body = Buffer.from(init.body).toString('base64');
       } else if (init.body instanceof Uint8Array) {

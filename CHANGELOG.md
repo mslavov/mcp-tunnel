@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2025-11-26
+
+### Fixed
+- 🔧 **String body base64 encoding** - Fixed wrapper to properly base64 encode string request bodies before sending through tunnel. Previously, string bodies were sent as plain text while the worker expected base64, causing corrupted request bodies.
+
 ## [0.2.3] - 2025-11-25
 
 ### Added
